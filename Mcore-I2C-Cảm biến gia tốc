@@ -1,0 +1,36 @@
+#include <Wire.h>
+int ADXLAddress = 0x53; // Địa chỉ của cảm biến gia tốc trong module GY80
+#define X_Axis_Register_DATAX0 0x32 // địa chỉ của data0 trục X trong cảm biến gia tốc ADXL345 trong module GY-80
+#define X_Axis_Register_DATAX1 0x33 //địa chỉ của data1 trục X trong cảm biến gia tốc ADXL345 trong module GY-80
+#define Power_Register 0x2D // thanh ghi điều khiển năng lượng cung cấp
+int X0,X1,X_out;
+void setup() {
+  Wire.begin(); // Khởi tạo thư viện WIRE
+  Serial.begin(9600);
+  delay(100);
+  // kích hoạt tính năng đo lường
+  Wire.beginTransmission(ADXLAddress);//bắt đầu việc truyền tải yêu cầu tới các cảm biến
+  Wire.write(Power_Register);
+  // Cho phép đo
+  Wire.write(8);  
+  Wire.endTransmission();
+}
+void loop() {
+  Wire.beginTransmission(ADXLAddress); // Bắt đầu truyền đến cảm biếnr 
+  //Thu thập dữ liệu từ các thanh ghi
+  Wire.write(X_Axis_Register_DATAX0);
+  Wire.write(X_Axis_Register_DATAX1);
+  
+  Wire.endTransmission(); // Kết thúc việc truyền dữ liệu từ 2 thanh ghi
+  Wire.requestFrom(ADXLAddress,2); // Yêu cầu truyền 2 byte từ 2 thanh ghi
+  
+  if(Wire.available()<=2) {  // 
+    X0 = Wire.read(); // Đọc dữ liệu từ thanh ghi
+    X1 = Wire.read();   
+  }
+  
+  Serial.print("X0= ");
+  Serial.print(X0);
+  Serial.print("   X1= ");
+  Serial.println(X1);
+}
